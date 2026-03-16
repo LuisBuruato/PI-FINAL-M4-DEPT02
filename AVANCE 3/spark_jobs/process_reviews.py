@@ -1,45 +1,38 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import avg, count, col
 
+spark = SparkSession.builder \
+    .appName("Bronze_to_Silver") \
+    .config(
+        "spark.hadoop.fs.s3a.aws.credentials.provider",
+        "com.amazonaws.auth.DefaultAWSCredentialsProviderChain"
+    ) \
+    .getOrCreate()
 
-def main():
+# Leer datos desde S3 Bronze
+df_patagonia = spark.read.json(
+    "s3a://ingesta-airbyte-m4/bronze/patagonia/onecall/*.jsonl.gz"
+)
 
-    spark = SparkSession.builder \
-        .appName("Weather Data Processing") \
-        .getOrCreate()
+df_riohacha = spark.read.json(
+    "s3a://ingesta-airbyte-m4/bronze/riohacha/onecall/*.jsonl.gz"
+)
 
-    path_patagonia = "spark_jobs/data/raw/Patagonia_-41.json"
-    path_riohacha = "spark_jobs/data/raw/Riohacha_11_538415.json"
+# Combinar datasets
+df_silver = df_patagonia.unionByName(
+    df_riohacha,
+    allowMissingColumns=True
+)
 
-    df_patagonia = spark.read.json(path_patagonia)
-    df_riohacha = spark.read.json(path_riohacha)
+# Optimización Spark
+df_silver = df_silver.cache()
+df_silver = df_silver.repartition(2)
 
-    df_weather = df_patagonia.unionByName(
-        df_riohacha,
-        allowMissingColumns=True
-    )
+# Ver datos
+df_silver.show()
 
-    df_weather = df_weather.repartition(4)
-    df_weather.cache()
+# Guardar en Silver
+df_silver.write \
+    .mode("overwrite") \
+    .parquet("s3a://ingesta-airbyte-m4/silver/weather/")
 
-    df_analysis = df_weather.groupBy("city_name").agg(
-        avg(col("main.temp")).alias("avg_temperature"),
-        avg(col("wind.speed")).alias("avg_wind_speed"),
-        count("*").alias("records")
-    )
-
-    df_analysis.show()
-
-    # guardar en csv usando pandas
-    output_path = "spark_jobs/data/processed/weather_analysis.csv"
-
-    pdf = df_analysis.toPandas()
-    pdf.to_csv(output_path, index=False)
-
-    print("Archivo guardado correctamente en processed")
-
-    spark.stop()
-
-
-if __name__ == "__main__":
-    main()
+spark.stop()

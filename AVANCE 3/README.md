@@ -1,111 +1,148 @@
-# Proyecto Integrador - Avance 3  
-## Procesamiento de datos con Apache Spark
+# Proyecto Integrador – Avance 3
 
-### Descripción del proyecto
+## Procesamiento de Datos con Apache Spark (PySpark)
 
-En esta etapa del proyecto se implementó el procesamiento de datos dentro del Data Lake utilizando Apache Spark y PySpark. El objetivo principal es transformar los datos almacenados en la capa **raw** y generar datasets procesados en la capa **processed**, listos para su análisis.
+### 📌 Descripción del proyecto
 
-Como Ingeniero de Datos, el trabajo consiste en desarrollar jobs que permitan combinar, limpiar y transformar los datos para responder preguntas de negocio, aplicando además técnicas de optimización para mejorar el rendimiento del procesamiento.
+En esta etapa del proyecto se implementa el procesamiento de datos dentro de un **Data Lake** utilizando **Apache Spark con PySpark**.
 
----
+Los datos provienen de una API meteorológica pública y fueron previamente ingeridos mediante **Airbyte**, almacenándose en **Amazon S3** dentro de la capa **Bronze**.
 
-## Tecnologías utilizadas
-
-- Apache Spark
-- PySpark
-- Python
-- Data Lake (estructura raw / processed)
+Posteriormente, se desarrolló un job en PySpark para transformar estos datos y almacenarlos en la capa **Silver** del Data Lake en formato **Parquet**, optimizado para análisis.
 
 ---
 
-## Estructura del proyecto
+## 🏗 Arquitectura del pipeline
 
+El flujo de datos sigue una arquitectura **Medallion** dentro del Data Lake:
 
+```
+Weather API
+     │
+     ▼
+Airbyte (Ingesta)
+     │
+     ▼
+Amazon S3
+     │
+     ├── Bronze (datos crudos JSON)
+     │
+     ▼
+Apache Spark (Transformación)
+     │
+     ▼
+Silver (datos procesados en Parquet)
+```
+
+---
+
+## ⚙ Tecnologías utilizadas
+
+* Python
+* Apache Spark (PySpark)
+* Amazon S3
+* Airbyte
+* Apache Airflow
+* AWS EC2
+
+---
+
+## 📂 Estructura del proyecto
+
+```
 DE_M4
 │
 ├── spark_jobs
-│ └── process_reviews.py
+│     └── process_reviews.py
 │
-└── data
-├── raw
-│ ├── Patagonia_-41.json
-│ └── Riohacha_11_538415.json
+├── airflow
+│     └── dags
+│           └── pipeline_weather.py
 │
-└── processed
-└── weather_analysis.csv
-
+└── documentation
+      └── avance_3_procesamiento_spark.docx
+```
 
 ---
 
-## Flujo de procesamiento de datos
+## 🔄 Procesamiento de datos con PySpark
 
-1. **Ingesta de datos**
+Se desarrolló un script en PySpark que realiza las siguientes tareas:
 
-Los datos climáticos en formato JSON se almacenan en la capa **raw** del Data Lake.
+1. Conexión a Amazon S3.
+2. Lectura de archivos JSON provenientes de la capa Bronze.
+3. Conversión de los datos a DataFrames de Spark.
+4. Transformación y limpieza de datos.
+5. Escritura del dataset transformado en formato Parquet en la capa Silver.
 
-2. **Lectura con Spark**
-
-Los archivos JSON se cargan utilizando PySpark:
+Ejemplo de lectura de datos desde S3:
 
 ```python
-df_patagonia = spark.read.json(path_patagonia)
-df_riohacha = spark.read.json(path_riohacha)
+df = spark.read.json("s3a://ingesta-airbyte-m4/bronze/patagonia/onecall/")
+```
 
-Integración de datasets
+Escritura del resultado en formato Parquet:
 
-Ambos datasets se combinan en un único DataFrame:
+```python
+df.write.mode("overwrite").parquet("s3a://ingesta-airbyte-m4/silver/weather/")
+```
 
-df_weather = df_patagonia.unionByName(df_riohacha)
+---
 
-Optimización del procesamiento
+## 🚀 Optimización del procesamiento
 
-Se aplicaron técnicas de optimización:
+Para mejorar el rendimiento del procesamiento en Spark se aplicaron buenas prácticas:
 
-Repartition para mejorar la distribución del procesamiento.
+* Uso del formato **Parquet** para almacenamiento columnar.
+* Compresión **Snappy** para reducir tamaño de archivos.
+* Procesamiento distribuido mediante Apache Spark.
+* Generación de múltiples archivos `part-xxxxx.parquet` que permiten paralelismo.
 
-df_weather = df_weather.repartition(4)
+---
 
-Caching para evitar recalcular operaciones repetidas.
+## 📊 Resultados obtenidos
 
-df_weather.cache()
+Los datos transformados fueron almacenados en **Amazon S3** dentro de la capa Silver.
 
-Transformaciones
+Ubicación del dataset:
 
-Se calcularon métricas agregadas por ciudad:
+```
+s3://ingesta-airbyte-m4/silver/weather/
+```
 
-Temperatura promedio
+Archivos generados:
 
-Velocidad promedio del viento
+```
+_SUCCESS
+part-00000.snappy.parquet
+part-00001.snappy.parquet
+```
 
-Cantidad total de registros
+El archivo `_SUCCESS` indica que el proceso de Spark finalizó correctamente.
 
-df_analysis = df_weather.groupBy("city_name").agg(
-    avg(col("main.temp")).alias("avg_temperature"),
-    avg(col("wind.speed")).alias("avg_wind_speed"),
-    count("*").alias("records")
-)
+---
 
-Salida de datos
+## 📸 Evidencias
 
-Los resultados se guardan en la capa processed del Data Lake.
+El proyecto incluye capturas de:
 
-Ejecución del job
+* Script PySpark utilizado para el procesamiento.
+* Estructura del Data Lake en Amazon S3.
+* Archivos generados en la capa Silver.
+* Ejecución del job Spark desde la terminal.
 
-El procesamiento se ejecuta mediante spark-submit, lo que permite correr el script como un job de Apache Spark.
+---
 
-spark-submit spark_jobs/process_reviews.py
-Resultados obtenidos
-Ciudad	Temperatura promedio	Velocidad viento promedio	Registros
-Patagonia	8.96 °C	3.94 m/s	8784
-Riohacha	28.08 °C	4.25 m/s	8784
+## ✅ Conclusión
 
-Estos resultados permiten comparar las condiciones climáticas entre ambas ciudades y responder preguntas de negocio relacionadas con el comportamiento del clima en cada región.
+En este avance se implementó exitosamente el procesamiento de datos dentro del Data Lake utilizando Apache Spark.
 
-Conclusión
+Los datos crudos provenientes de la API meteorológica fueron transformados y almacenados en formato Parquet en la capa Silver, optimizando su uso para análisis posteriores.
 
-En este avance se implementó un pipeline de procesamiento utilizando Apache Spark que permite transformar datos desde la capa raw hasta processed dentro del Data Lake.
+Este procesamiento prepara los datos para las siguientes etapas del pipeline, incluyendo la orquestación mediante Apache Airflow y su consumo en herramientas de análisis.
 
-Se aplicaron técnicas de optimización como repartition y cache, además de ejecutar el procesamiento mediante spark-submit, cumpliendo con los requerimientos del proyecto.
+---
+
 
 
 
