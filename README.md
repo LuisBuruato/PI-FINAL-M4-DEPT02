@@ -1,75 +1,76 @@
-# End-to-End Data Engineering Pipeline – Renewable Energy Data
-CI Status: GitHub Actions enabled for pipeline validation
+# Pipeline End-to-End de Data Engineering – Datos de Energía Renovable
 
-This repository contains the **Final Integrator Project for the Data Engineering Module (M4)**.
-The project implements a complete **end-to-end data pipeline**, covering ingestion, processing, orchestration and automation using modern Data Engineering tools.
+Estado CI: GitHub Actions habilitado para validación del pipeline
 
-The pipeline processes renewable energy and weather data and follows the **Medallion Architecture** pattern.
+Este repositorio contiene el **Proyecto Integrador Final del Módulo 4 (Data Engineering)**.
+El proyecto implementa un **pipeline de datos end-to-end**, que cubre ingesta, procesamiento, orquestación y automatización utilizando herramientas modernas de ingeniería de datos.
+
+El pipeline procesa datos meteorológicos y relacionados con energía renovable siguiendo el patrón de arquitectura **Medallion Architecture**.
 
 ---
 
-# Project Architecture
+# Arquitectura del Proyecto
 
-The solution is built using a **Data Lake architecture** with three processing layers:
+La solución está construida utilizando una arquitectura de **Data Lake** con tres capas de procesamiento:
 
 Bronze → Silver → Gold
 
-### Bronze Layer
+### Capa Bronze
 
-Raw data ingestion from external sources.
-Data is stored without transformation to preserve the original dataset.
+Ingesta de datos crudos provenientes de fuentes externas.
+Los datos se almacenan sin transformación para preservar el dataset original.
 
-### Silver Layer
+### Capa Silver
 
-Data is cleaned, normalized and transformed using **Apache Spark**.
+Los datos son limpiados, normalizados y transformados utilizando **Apache Spark**.
 
-### Gold Layer
+### Capa Gold
 
-Aggregated datasets optimized for analytics and reporting.
-
----
-
-# Data Pipeline Overview
-
-The pipeline performs the following steps:
-
-1. Data ingestion from external sources
-2. Storage of raw data in the Bronze layer
-3. Data transformation using Spark
-4. Creation of curated datasets in Silver
-5. Generation of analytical datasets in Gold
-6. Pipeline orchestration using Apache Airflow
-7. Automated validation with GitHub Actions
+Datasets agregados optimizados para análisis y generación de reportes.
 
 ---
 
-# Technologies Used
+# Flujo del Pipeline de Datos
 
-The project uses the following technologies:
+El pipeline realiza los siguientes pasos:
+
+1. Ingesta de datos desde fuentes externas
+2. Almacenamiento de datos crudos en la capa Bronze
+3. Transformación de datos utilizando Apache Spark
+4. Creación de datasets curados en la capa Silver
+5. Generación de datasets analíticos en la capa Gold
+6. Orquestación del pipeline utilizando Apache Airflow
+7. Validación automática del proyecto mediante GitHub Actions
+
+---
+
+# Tecnologías Utilizadas
+
+El proyecto utiliza las siguientes tecnologías:
 
 * Python
 * Apache Spark (PySpark)
 * Apache Airflow
 * Docker
 * AWS EC2
-* Git & GitHub
+* Git y GitHub
 * GitHub Actions (CI/CD)
 * Parquet
 
 ---
 
-# CI/CD Automation
+# Automatización CI/CD
 
-A **Continuous Integration pipeline** is implemented using GitHub Actions.
+Se implementa un pipeline de **Integración Continua (CI)** utilizando GitHub Actions.
 
-The CI workflow automatically:
+El workflow de CI realiza automáticamente:
 
-* Installs dependencies
-* Validates the pipeline environment
-* Ensures the repository structure is correct
-* Executes validation steps on every push
+* Instalación de dependencias
+* Validación del entorno del pipeline
+* Verificación de la estructura del repositorio
+* Ejecución de validaciones cada vez que se realiza un *push* al repositorio
 
-Workflow file location:
+Ubicación del workflow:
 
 ```
 .github/workflows/ci.yml
@@ -77,51 +78,51 @@ Workflow file location:
 
 ---
 
-# Repository Structure
+# Estructura del Repositorio
 
 ```
 AVANCE 1
-Architecture design and Data Lake planning
+Diseño de arquitectura del pipeline y planificación del Data Lake
 
 AVANCE 2
-Data ingestion pipeline implementation
+Implementación del proceso de ingesta de datos
 
 AVANCE 3
-Data processing and transformation with Spark
+Procesamiento y transformación de datos con Apache Spark
 
 AVANCE 4
-Pipeline orchestration and CI/CD automation
+Orquestación del pipeline y automatización con CI/CD
 ```
 
 ---
 
-# Pipeline Orchestration
+# Orquestación del Pipeline
 
-Pipeline tasks are orchestrated using **Apache Airflow DAGs**.
+Las tareas del pipeline se orquestan utilizando **DAGs de Apache Airflow**.
 
-The DAG controls:
+El DAG controla:
 
-* Data ingestion
-* Data transformation
-* Movement between Data Lake layers
-* Final dataset generation
-
----
-
-# Project Objective
-
-The goal of this project is to demonstrate the ability to design and implement a **production-style data pipeline**, including:
-
-* Data ingestion
-* Data transformation
-* Data orchestration
-* Automation
-* CI/CD integration
-* Version control using Git
+* Ingesta de datos
+* Transformación de datos
+* Movimiento de datos entre capas del Data Lake
+* Generación del dataset final en la capa Gold
 
 ---
 
-# Author
+# Objetivo del Proyecto
 
-Luis Buruato
-Data Engineering Project – Module 4
+El objetivo del proyecto es demostrar la capacidad de diseñar e implementar un **pipeline de datos de nivel productivo**, incluyendo:
+
+* Ingesta de datos
+* Transformación y procesamiento
+* Orquestación del pipeline
+* Automatización de procesos
+* Integración continua (CI/CD)
+* Control de versiones mediante Git
+
+---
+
+# Autor
+
+Luis Ramon Buruato
+Proyecto Integrador – Data Engineering Módulo 4
