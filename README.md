@@ -1,4 +1,5 @@
 # End-to-End Data Engineering Pipeline – Renewable Energy Data
+CI Status: GitHub Actions enabled for pipeline validation
 
 This repository contains the **Final Integrator Project for the Data Engineering Module (M4)**.
 The project implements a complete **end-to-end data pipeline**, covering ingestion, processing, orchestration and automation using modern Data Engineering tools.
