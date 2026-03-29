@@ -1,76 +1,217 @@
-# Pipeline End-to-End de Data Engineering – Datos de Energía Renovable
+# 🚀 End-to-End Data Engineering Pipeline – Renewable Energy Data
 
-Estado CI: GitHub Actions habilitado para validación del pipeline
-
-Este repositorio contiene el **Proyecto Integrador Final del Módulo 4 (Data Engineering)**.
-El proyecto implementa un **pipeline de datos end-to-end**, que cubre ingesta, procesamiento, orquestación y automatización utilizando herramientas modernas de ingeniería de datos.
-
-El pipeline procesa datos meteorológicos y relacionados con energía renovable siguiendo el patrón de arquitectura **Medallion Architecture**.
+![Status](https://img.shields.io/badge/status-production--ready-brightgreen)
+![CI](https://img.shields.io/badge/CI-GitHub%20Actions-blue)
+![Tech](https://img.shields.io/badge/stack-Airflow%20%7C%20Spark%20%7C%20AWS-orange)
 
 ---
 
-# Arquitectura del Proyecto
+## 📌 Overview
 
-La solución está construida utilizando una arquitectura de **Data Lake** con tres capas de procesamiento:
+This project implements a **production-style end-to-end data pipeline** using modern Data Engineering tools.
 
+The pipeline processes **weather and renewable energy data** following a **Medallion Architecture (Bronze → Silver → Gold)** and is fully orchestrated using **Apache Airflow deployed on AWS EC2 with Docker**.
+
+---
+
+## 🧠 Architecture
+
+### 🏗️ Data Lake Layers
+
+```
 Bronze → Silver → Gold
+```
 
-### Capa Bronze
+* **Bronze Layer**
 
-Ingesta de datos crudos provenientes de fuentes externas.
-Los datos se almacenan sin transformación para preservar el dataset original.
+  * Raw data ingestion from external sources
+  * No transformations applied
 
-### Capa Silver
+* **Silver Layer**
 
-Los datos son limpiados, normalizados y transformados utilizando **Apache Spark**.
+  * Data cleaning and normalization
+  * Processing using Python / PySpark logic
 
-### Capa Gold
+* **Gold Layer**
 
-Datasets agregados optimizados para análisis y generación de reportes.
-
----
-
-# Flujo del Pipeline de Datos
-
-El pipeline realiza los siguientes pasos:
-
-1. Ingesta de datos desde fuentes externas
-2. Almacenamiento de datos crudos en la capa Bronze
-3. Transformación de datos utilizando Apache Spark
-4. Creación de datasets curados en la capa Silver
-5. Generación de datasets analíticos en la capa Gold
-6. Orquestación del pipeline utilizando Apache Airflow
-7. Validación automática del proyecto mediante GitHub Actions
+  * Aggregated datasets optimized for analytics
+  * Ready for reporting and downstream consumption
 
 ---
 
-# Tecnologías Utilizadas
+## 🔄 Pipeline Flow
 
-El proyecto utiliza las siguientes tecnologías:
+The pipeline executes the following steps:
 
-* Python
-* Apache Spark (PySpark)
-* Apache Airflow
-* Docker
-* AWS EC2
-* Git y GitHub
-* GitHub Actions (CI/CD)
-* Parquet
+1. Data ingestion from external sources
+2. Storage in Bronze layer
+3. Data transformation (Silver)
+4. Data aggregation (Gold)
+5. Orchestration using Apache Airflow
+6. Automated validation via CI/CD
 
 ---
 
-# Automatización CI/CD
+## ⚙️ Tech Stack
 
-Se implementa un pipeline de **Integración Continua (CI)** utilizando GitHub Actions.
+* **Python**
+* **Apache Airflow**
+* **Apache Spark (PySpark)**
+* **Docker**
+* **AWS EC2**
+* **Parquet**
+* **Git & GitHub**
+* **GitHub Actions (CI/CD)**
 
-El workflow de CI realiza automáticamente:
+---
 
-* Instalación de dependencias
-* Validación del entorno del pipeline
-* Verificación de la estructura del repositorio
-* Ejecución de validaciones cada vez que se realiza un *push* al repositorio
+## 🧩 Project Structure
 
-Ubicación del workflow:
+```
+project/
+│
+├── dags/
+│   ├── pipeline_weather.py
+│   ├── process_reviews.py
+│   └── create_gold_dataset.py
+│
+├── .github/workflows/
+│   └── ci.yml
+│
+└── README.md
+```
+
+---
+
+## ⚙️ Deployment & Execution Guide
+
+### 1. Connect to EC2
+
+```bash
+ssh -i airflow-key.pem ubuntu@<PUBLIC_IP>
+```
+
+---
+
+### 2. Run Airflow using Docker
+
+```bash
+sudo docker run -d \
+  --name airflow \
+  -p 8080:8080 \
+  apache/airflow:2.8.1 standalone
+```
+
+---
+
+### 3. Access Airflow UI
+
+Open in browser:
+
+```
+http://<PUBLIC_IP>:8080
+```
+
+Retrieve credentials:
+
+```bash
+sudo docker logs airflow | grep password
+```
+
+---
+
+### 4. Deploy DAG and Scripts
+
+```bash
+sudo docker cp pipeline_weather.py airflow:/opt/airflow/dags/
+sudo docker cp process_reviews.py airflow:/opt/airflow/dags/
+sudo docker cp create_gold_dataset.py airflow:/opt/airflow/dags/
+```
+
+---
+
+### 5. Verify DAG Deployment
+
+```bash
+sudo docker exec -it airflow ls /opt/airflow/dags
+```
+
+---
+
+### 6. Run the Pipeline
+
+1. Open Airflow UI
+2. Enable DAG: `pipeline_weather`
+3. Click **Trigger DAG**
+4. Monitor execution in Graph View
+
+---
+
+### 7. DAG Execution Flow
+
+```
+ingest_airbyte → silver_transform → gold_layer
+```
+
+---
+
+## 🐞 Troubleshooting
+
+### ❌ File not found inside container
+
+Error:
+
+```
+No such file or directory
+```
+
+Solution:
+
+```bash
+sudo docker cp <file> airflow:/opt/airflow/dags/
+```
+
+---
+
+### ❌ Port 8080 not accessible
+
+Solution:
+
+* Open port **8080** in AWS Security Group
+
+---
+
+### ❌ Login issues
+
+Solution:
+
+```bash
+sudo docker logs airflow | grep password
+```
+
+---
+
+## 📊 Results
+
+* ✅ Pipeline executed successfully end-to-end
+* ✅ Data processed across Bronze → Silver → Gold layers
+* ✅ Airflow DAG orchestrating multiple tasks
+* ✅ Fully deployed in cloud environment (AWS EC2)
+
+---
+
+## 🔄 CI/CD Automation
+
+Continuous Integration is implemented using **GitHub Actions**.
+
+### Workflow includes:
+
+* Dependency installation
+* Environment validation
+* Pipeline structure checks
+* Execution on every push
+
+📍 Location:
 
 ```
 .github/workflows/ci.yml
@@ -78,51 +219,47 @@ Ubicación del workflow:
 
 ---
 
-# Estructura del Repositorio
+## 🎯 Key Learnings
 
-```
-AVANCE 1
-Diseño de arquitectura del pipeline y planificación del Data Lake
-
-AVANCE 2
-Implementación del proceso de ingesta de datos
-
-AVANCE 3
-Procesamiento y transformación de datos con Apache Spark
-
-AVANCE 4
-Orquestación del pipeline y automatización con CI/CD
-```
+* Building scalable data pipelines using Airflow
+* Deploying services using Docker on AWS EC2
+* Debugging real-world pipeline failures
+* Managing dependencies inside containerized environments
+* Implementing CI/CD for data workflows
 
 ---
 
-# Orquestación del Pipeline
+## 🚀 Future Improvements
 
-Las tareas del pipeline se orquestan utilizando **DAGs de Apache Airflow**.
-
-El DAG controla:
-
-* Ingesta de datos
-* Transformación de datos
-* Movimiento de datos entre capas del Data Lake
-* Generación del dataset final en la capa Gold
+* Integrate AWS S3 as Data Lake storage
+* Add real Airbyte ingestion pipelines
+* Implement Spark cluster processing
+* Schedule automated DAG runs (@daily)
+* Add monitoring & alerting
 
 ---
 
-# Objetivo del Proyecto
+## 💼 About This Project
 
-El objetivo del proyecto es demostrar la capacidad de diseñar e implementar un **pipeline de datos de nivel productivo**, incluyendo:
+This project demonstrates **hands-on experience in Data Engineering**, including:
 
-* Ingesta de datos
-* Transformación y procesamiento
-* Orquestación del pipeline
-* Automatización de procesos
-* Integración continua (CI/CD)
-* Control de versiones mediante Git
+* Pipeline orchestration
+* Cloud deployment
+* Containerized environments
+* Data transformation workflows
 
 ---
 
-# Autor
+## 🏁 Final Result
 
-Luis Ramon Buruato
+A fully functional **production-style data pipeline** deployed in AWS and orchestrated with Apache Airflow.
+
+---
+
+## ⭐ If you find this useful
+
+Give it a ⭐ on GitHub and feel free to fork!
+
+---
+
 Proyecto Integrador – Data Engineering Módulo 4
