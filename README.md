@@ -2,7 +2,7 @@
 
 ![Status](https://img.shields.io/badge/status-production--ready-brightgreen)
 ![CI](https://img.shields.io/badge/CI-GitHub%20Actions-blue)
-![Tech](https://img.shields.io/badge/stack-Airflow%20%7C%20Spark%20%7C%20AWS-orange)
+![Stack](https://img.shields.io/badge/stack-Airflow%20%7C%20Spark%20%7C%20AWS-orange)
 
 ---
 
@@ -10,64 +10,58 @@
 
 This project implements a **production-style end-to-end data pipeline** using modern Data Engineering tools.
 
-The pipeline processes **weather and renewable energy data** following a **Medallion Architecture (Bronze → Silver → Gold)** and is fully orchestrated using **Apache Airflow deployed on AWS EC2 with Docker**.
+It processes **weather and renewable energy data** using a **Medallion Architecture (Bronze → Silver → Gold)** and is fully orchestrated using **Apache Airflow deployed on AWS EC2 with Docker**.
+
+Additionally, it includes a **Streamlit dashboard** for data visualization.
 
 ---
 
 ## 🧠 Architecture
 
-### 🏗️ Data Lake Layers
-
-```
+```text
 Bronze → Silver → Gold
 ```
 
 * **Bronze Layer**
 
   * Raw data ingestion from external sources
-  * No transformations applied
-
 * **Silver Layer**
 
-  * Data cleaning and normalization
-  * Processing using Python / PySpark logic
-
+  * Data cleaning and transformation
 * **Gold Layer**
 
-  * Aggregated datasets optimized for analytics
-  * Ready for reporting and downstream consumption
+  * Aggregated datasets for analytics
 
 ---
 
 ## 🔄 Pipeline Flow
 
-The pipeline executes the following steps:
-
-1. Data ingestion from external sources
-2. Storage in Bronze layer
+1. Data ingestion
+2. Bronze storage
 3. Data transformation (Silver)
-4. Data aggregation (Gold)
-5. Orchestration using Apache Airflow
-6. Automated validation via CI/CD
+4. Aggregation (Gold)
+5. Orchestration with Airflow
+6. Visualization with Streamlit
 
 ---
 
 ## ⚙️ Tech Stack
 
-* **Python**
-* **Apache Airflow**
-* **Apache Spark (PySpark)**
-* **Docker**
-* **AWS EC2**
-* **Parquet**
-* **Git & GitHub**
-* **GitHub Actions (CI/CD)**
+* Python
+* Apache Airflow
+* Apache Spark (PySpark)
+* Docker
+* AWS EC2
+* Parquet
+* Git & GitHub
+* GitHub Actions (CI/CD)
+* Streamlit
 
 ---
 
 ## 🧩 Project Structure
 
-```
+```text
 project/
 │
 ├── dags/
@@ -75,9 +69,8 @@ project/
 │   ├── process_reviews.py
 │   └── create_gold_dataset.py
 │
-├── .github/workflows/
-│   └── ci.yml
-│
+├── app.py
+├── .github/workflows/ci.yml
 └── README.md
 ```
 
@@ -93,7 +86,7 @@ ssh -i airflow-key.pem ubuntu@<PUBLIC_IP>
 
 ---
 
-### 2. Run Airflow using Docker
+### 2. Run Airflow (Docker)
 
 ```bash
 sudo docker run -d \
@@ -104,15 +97,11 @@ sudo docker run -d \
 
 ---
 
-### 3. Access Airflow UI
-
-Open in browser:
+### 3. Access Airflow
 
 ```
 http://<PUBLIC_IP>:8080
 ```
-
-Retrieve credentials:
 
 ```bash
 sudo docker logs airflow | grep password
@@ -120,7 +109,7 @@ sudo docker logs airflow | grep password
 
 ---
 
-### 4. Deploy DAG and Scripts
+### 4. Deploy DAGs
 
 ```bash
 sudo docker cp pipeline_weather.py airflow:/opt/airflow/dags/
@@ -130,42 +119,51 @@ sudo docker cp create_gold_dataset.py airflow:/opt/airflow/dags/
 
 ---
 
-### 5. Verify DAG Deployment
+### 5. Run Pipeline
 
-```bash
-sudo docker exec -it airflow ls /opt/airflow/dags
-```
-
----
-
-### 6. Run the Pipeline
-
-1. Open Airflow UI
-2. Enable DAG: `pipeline_weather`
-3. Click **Trigger DAG**
-4. Monitor execution in Graph View
+* Enable DAG: `pipeline_weather`
+* Click **Trigger DAG**
+* Monitor execution
 
 ---
 
-### 7. DAG Execution Flow
+### 6. DAG Flow
 
-```
+```text
 ingest_airbyte → silver_transform → gold_layer
 ```
 
 ---
 
+## 📊 Data Visualization (Streamlit)
+
+### Run dashboard
+
+```bash
+streamlit run app.py --server.port 8503 --server.address 0.0.0.0
+```
+
+---
+
+### Access dashboard
+
+```
+http://<PUBLIC_IP>:8503
+```
+
+---
+
+### Features
+
+* Interactive dashboard
+* Displays Silver & Gold datasets
+* Real-time updates
+
+---
+
 ## 🐞 Troubleshooting
 
-### ❌ File not found inside container
-
-Error:
-
-```
-No such file or directory
-```
-
-Solution:
+### Missing files in Docker
 
 ```bash
 sudo docker cp <file> airflow:/opt/airflow/dags/
@@ -173,45 +171,42 @@ sudo docker cp <file> airflow:/opt/airflow/dags/
 
 ---
 
-### ❌ Port 8080 not accessible
+### Airflow not accessible
 
-Solution:
-
-* Open port **8080** in AWS Security Group
+* Open port 8080 in AWS Security Group
 
 ---
 
-### ❌ Login issues
-
-Solution:
+### Streamlit errors (S3)
 
 ```bash
-sudo docker logs airflow | grep password
+aws configure
 ```
+
+Ensure:
+
+* Correct Access Key
+* Correct Secret Key
+* Correct Region
 
 ---
 
 ## 📊 Results
 
-* ✅ Pipeline executed successfully end-to-end
-* ✅ Data processed across Bronze → Silver → Gold layers
-* ✅ Airflow DAG orchestrating multiple tasks
-* ✅ Fully deployed in cloud environment (AWS EC2)
+* ✅ Pipeline executed end-to-end
+* ✅ Data processed across layers
+* ✅ Dashboard visualization working
+* ✅ Deployed in AWS cloud
 
 ---
 
-## 🔄 CI/CD Automation
+## 🔄 CI/CD
 
-Continuous Integration is implemented using **GitHub Actions**.
+GitHub Actions pipeline:
 
-### Workflow includes:
-
-* Dependency installation
-* Environment validation
-* Pipeline structure checks
-* Execution on every push
-
-📍 Location:
+* Dependency validation
+* Project structure checks
+* Triggered on push
 
 ```
 .github/workflows/ci.yml
@@ -221,45 +216,37 @@ Continuous Integration is implemented using **GitHub Actions**.
 
 ## 🎯 Key Learnings
 
-* Building scalable data pipelines using Airflow
-* Deploying services using Docker on AWS EC2
-* Debugging real-world pipeline failures
-* Managing dependencies inside containerized environments
-* Implementing CI/CD for data workflows
+* Airflow orchestration
+* Docker containerization
+* AWS deployment
+* Debugging real pipelines
+* Data pipeline architecture
 
 ---
 
 ## 🚀 Future Improvements
 
-* Integrate AWS S3 as Data Lake storage
-* Add real Airbyte ingestion pipelines
-* Implement Spark cluster processing
-* Schedule automated DAG runs (@daily)
-* Add monitoring & alerting
+* Integrate AWS S3 Data Lake
+* Add real Airbyte ingestion
+* Use Spark cluster
+* Schedule DAG runs
+* Add monitoring
 
 ---
 
-## 💼 About This Project
+## 💼 Project Impact
 
-This project demonstrates **hands-on experience in Data Engineering**, including:
+This project demonstrates **real-world Data Engineering skills**, including:
 
-* Pipeline orchestration
 * Cloud deployment
-* Containerized environments
-* Data transformation workflows
+* Pipeline orchestration
+* Data processing workflows
+* Full-stack data applications
 
 ---
 
-## 🏁 Final Result
+## ⭐ Final Result
 
-A fully functional **production-style data pipeline** deployed in AWS and orchestrated with Apache Airflow.
-
----
-
-## ⭐ If you find this useful
-
-Give it a ⭐ on GitHub and feel free to fork!
+A fully functional **production-style data pipeline with visualization layer** deployed in AWS.
 
 ---
-
-Proyecto Integrador – Data Engineering Módulo 4
